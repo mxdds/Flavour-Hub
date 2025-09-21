@@ -4,7 +4,7 @@
     "slug": "flavour-hub",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/flavour-hub.png",
     "scheme": "flavourhub",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -43,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "088e8388-fa56-448e-a671-147bb98c3dc1"
+      }
+    },
+    "owner": "mxdds"
   }
 }

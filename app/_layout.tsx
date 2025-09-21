@@ -1,24 +1,56 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { View, Text, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Stack, Slot } from "expo-router";
+import "./../global.css";
+import { AuthProvider } from "@/context/AuthContext";
+import { LoaderProvider } from "@/context/LoaderContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { initializeServices } from "@/services/initService";
+import Loader from "@/components/Loader";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+const RootLayout = () => {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        setIsLoading(true);
+        const success = await initializeServices();
+        setIsInitialized(success);
+        if (!success) {
+          // Only show this in development
+          if (__DEV__) {
+            Alert.alert(
+              "Initialization Failed",
+              "Some app services failed to initialize. This may cause certain features to not work properly."
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Initialization error:", error);
+        setIsInitialized(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+    initialize();
+  }, []);
+
+  if (isLoading) {
+    return <Loader visible={true} />;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
+    <ThemeProvider>
+      <LoaderProvider>
+        <AuthProvider>
+          <Slot />
+        </AuthProvider>
+      </LoaderProvider>
     </ThemeProvider>
   );
-}
+};
+
+export default RootLayout;
