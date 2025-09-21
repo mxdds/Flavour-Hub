@@ -1,13 +1,14 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
+import { View, Text, Image, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { Meal } from "../types/meal";
 import { useTheme } from "../context/ThemeContext";
 import { useRouter } from "expo-router";
 
 interface MealCardProps {
   meal: Meal;
-  onFavorite?: () => void;
+  onToggleFavorite?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
   showActions?: boolean;
@@ -15,7 +16,7 @@ interface MealCardProps {
 
 export default function MealCard({
   meal,
-  onFavorite,
+  onToggleFavorite,
   onDelete,
   onEdit,
   showActions = true,
@@ -27,8 +28,6 @@ export default function MealCard({
     if (onEdit) {
       onEdit();
     } else if (meal.id) {
-      // Add a timestamp parameter to force the router to treat it as a new navigation
-      // and reset the form state
       router.push({
         pathname: "/(dashboard)/meals/[id]",
         params: { id: meal.id, refresh: Date.now().toString() },
@@ -48,255 +47,279 @@ export default function MealCard({
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
+  const getMealTypeIcon = (type?: string) => {
+    switch (type?.toLowerCase()) {
+      case 'breakfast': return 'free-breakfast';
+      case 'lunch': return 'lunch-dining';
+      case 'dinner': return 'dinner-dining';
+      case 'snack': return 'cookie';
+      default: return 'restaurant';
+    }
+  };
+
+  const getMealTypeGradient = (type?: string) => {
+    switch (type?.toLowerCase()) {
+      case 'breakfast': return colors.gradient.accent;
+      case 'lunch': return colors.gradient.secondary;
+      case 'dinner': return colors.gradient.primary;
+      default: return colors.gradient.accent;
+    }
+  };
+
   return (
     <TouchableOpacity
       onPress={handleEdit}
-      style={{
-        backgroundColor: colors.card,
-        borderRadius: 16,
-        shadowColor: colors.text,
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 8,
-        elevation: 4,
-        margin: 8,
-        overflow: "hidden",
-      }}
+      style={styles.container}
     >
-      {meal.image ? (
-        <Image
-          source={{ uri: meal.image }}
-          style={{
-            height: 180,
-            width: "100%",
-            backgroundColor: colors.border,
-          }}
-          resizeMode="cover"
-        />
-      ) : (
-        <View
-          style={{
-            height: 180,
-            width: "100%",
-            backgroundColor: colors.border,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <MaterialIcons
-            name="restaurant"
-            size={48}
-            color={colors.textSecondary}
-          />
-          <Text style={{ color: colors.textSecondary, marginTop: 8 }}>
-            No Image
-          </Text>
-        </View>
-      )}
-
-      <View style={{ padding: 16 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: 8,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontWeight: "bold",
-                fontSize: 18,
-                color: colors.text,
-                marginBottom: 4,
-              }}
+      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        {/* Enhanced Image Section */}
+        <View style={styles.imageContainer}>
+          {meal.image ? (
+            <Image
+              source={{ uri: meal.image }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ) : (
+            <LinearGradient
+              colors={getMealTypeGradient(meal.mealType)}
+              style={styles.placeholderImage}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
-              {meal.title || meal.name}
-            </Text>
-            {meal.mealType && (
-              <View
-                style={{
-                  backgroundColor: colors.primary,
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  borderRadius: 12,
-                  alignSelf: "flex-start",
-                  marginBottom: 8,
-                }}
+              <MaterialIcons
+                name={getMealTypeIcon(meal.mealType) as any}
+                size={48}
+                color={colors.surface}
+              />
+            </LinearGradient>
+          )}
+
+          {/* Gradient Overlay */}
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.7)']}
+            style={styles.overlay}
+          />
+
+          {/* Top Actions */}
+          <View style={styles.topActions}>
+            <View style={[styles.mealTypeBadge, { backgroundColor: colors.primary }]}>
+              <MaterialIcons
+                name={getMealTypeIcon(meal.mealType) as any}
+                size={16}
+                color={colors.surface}
+              />
+              <Text style={[styles.mealTypeText, { color: colors.surface }]}>
+                {formatMealType(meal.mealType)}
+              </Text>
+            </View>
+            {showActions && (
+              <TouchableOpacity
+                style={[styles.favoriteButton, {
+                  backgroundColor: meal.favorite ? colors.error : 'rgba(255,255,255,0.2)'
+                }]}
+                onPress={onToggleFavorite}
               >
-                <Text
-                  style={{
-                    color: "white",
-                    fontSize: 12,
-                    fontWeight: "600",
-                  }}
-                >
-                  {formatMealType(meal.mealType)}
+                <MaterialIcons
+                  name={meal.favorite ? "favorite" : "favorite-border"}
+                  size={20}
+                  color={meal.favorite ? colors.surface : colors.surface}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Bottom Title Overlay */}
+          <View style={styles.titleOverlay}>
+            <Text style={[styles.mealTitle, { color: colors.surface }]} numberOfLines={2}>
+              {meal.name}
+            </Text>
+          </View>
+        </View>
+
+        {/* Enhanced Content Section */}
+        <View style={styles.content}>
+          {meal.description && (
+            <Text style={[styles.description, { color: colors.textSecondary }]} numberOfLines={2}>
+              {meal.description}
+            </Text>
+          )}
+
+          {/* Meal Stats */}
+          <View style={styles.statsContainer}>
+            {meal.cookingTime && (
+              <View style={styles.statItem}>
+                <MaterialIcons name="schedule" size={16} color={colors.primary} />
+                <Text style={[styles.statText, { color: colors.textMuted }]}>
+                  {meal.cookingTime}min
+                </Text>
+              </View>
+            )}
+            {meal.servings && (
+              <View style={styles.statItem}>
+                <MaterialIcons name="people" size={16} color={colors.primary} />
+                <Text style={[styles.statText, { color: colors.textMuted }]}>
+                  {meal.servings} servings
+                </Text>
+              </View>
+            )}
+            {meal.calories && (
+              <View style={styles.statItem}>
+                <MaterialIcons name="local-fire-department" size={16} color={colors.secondary} />
+                <Text style={[styles.statText, { color: colors.textMuted }]}>
+                  {meal.calories} cal
                 </Text>
               </View>
             )}
           </View>
 
-          {showActions && onFavorite && (
-            <TouchableOpacity
-              onPress={() => {
-                console.log(
-                  "Favorite button pressed for meal:",
-                  meal.id,
-                  "Current favorite status:",
-                  meal.favorite
-                );
-                onFavorite();
-              }}
-              style={{
-                padding: 8,
-                borderRadius: 20,
-                backgroundColor: meal.favorite ? colors.error : colors.border,
-              }}
-            >
-              <MaterialIcons
-                name={meal.favorite ? "favorite" : "favorite-border"}
-                size={24}
-                color={meal.favorite ? "white" : colors.textSecondary}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {meal.description && (
-          <Text
-            style={{
-              color: colors.textSecondary,
-              fontSize: 14,
-              lineHeight: 20,
-              marginBottom: 12,
-            }}
-          >
-            {meal.description.length > 100
-              ? meal.description.substring(0, 100) + "..."
-              : meal.description}
-          </Text>
-        )}
-
-        {/* Meal Details Row */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 12,
-          }}
-        >
-          {meal.cookingTime && (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <MaterialIcons
-                name="schedule"
-                size={16}
-                color={colors.textSecondary}
-              />
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  fontSize: 12,
-                  marginLeft: 4,
-                }}
-              >
-                {meal.cookingTime} min
-              </Text>
-            </View>
-          )}
-          {meal.servings && (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <MaterialIcons
-                name="people"
-                size={16}
-                color={colors.textSecondary}
-              />
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  fontSize: 12,
-                  marginLeft: 4,
-                }}
-              >
-                {meal.servings} servings
-              </Text>
-            </View>
-          )}
-          {meal.calories && (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <MaterialIcons
-                name="local-fire-department"
-                size={16}
-                color={colors.textSecondary}
-              />
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  fontSize: 12,
-                  marginLeft: 4,
-                }}
-              >
-                {meal.calories} cal
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {showActions && (onEdit || onDelete) && (
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginTop: 8,
-            }}
-          >
-            <TouchableOpacity
-              onPress={handleEdit}
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: colors.primary,
-                paddingVertical: 8,
-                borderRadius: 8,
-                marginRight: 8,
-              }}
-            >
-              <MaterialIcons name="edit" size={16} color="white" />
-              <Text
-                style={{ color: "white", marginLeft: 4, fontWeight: "600" }}
-              >
-                Edit
-              </Text>
-            </TouchableOpacity>
-
-            {onDelete && (
+          {/* Action Buttons */}
+          {showActions && (
+            <View style={styles.actionButtons}>
               <TouchableOpacity
-                onPress={handleDelete}
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: colors.error,
-                  paddingVertical: 8,
-                  borderRadius: 8,
-                  marginLeft: 8,
-                }}
+                style={[styles.actionButton, { backgroundColor: colors.primaryLight }]}
+                onPress={handleEdit}
               >
-                <MaterialIcons name="delete" size={16} color="white" />
-                <Text
-                  style={{ color: "white", marginLeft: 4, fontWeight: "600" }}
-                >
+                <MaterialIcons name="edit" size={18} color={colors.primary} />
+                <Text style={[styles.actionButtonText, { color: colors.primary }]}>
+                  Edit
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: colors.backgroundSecondary }]}
+                onPress={handleDelete}
+              >
+                <MaterialIcons name="delete" size={18} color={colors.error} />
+                <Text style={[styles.actionButtonText, { color: colors.error }]}>
                   Delete
                 </Text>
               </TouchableOpacity>
-            )}
-          </View>
-        )}
+            </View>
+          )}
+        </View>
       </View>
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginVertical: 8,
+    marginHorizontal: 4,
+  },
+  card: {
+    borderRadius: 24,
+    overflow: "hidden",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+  },
+  imageContainer: {
+    position: "relative",
+    height: 200,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  placeholderImage: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "50%",
+  },
+  topActions: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    right: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  mealTypeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  mealTypeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginLeft: 4,
+  },
+  favoriteButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  titleOverlay: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+  mealTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  content: {
+    padding: 20,
+  },
+  description: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 16,
+  },
+  statItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 16,
+    marginBottom: 4,
+  },
+  statText: {
+    fontSize: 13,
+    marginLeft: 4,
+    fontWeight: "500",
+  },
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginHorizontal: 4,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 4,
+  },
+});
