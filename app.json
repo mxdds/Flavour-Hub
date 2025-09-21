@@ -6,12 +6,12 @@
     "orientation": "portrait",
     "icon": "./assets/images/flavour-hub.png",
     "scheme": "flavourhub",
-       "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/adaptive-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#16A34A",
-    "userInterfaceStyle": "automatic",
+      "backgroundColor": "#16A34A"
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -19,13 +19,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "##FFF7ED",
+        "backgroundColor": "#FFF7ED",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "package": "com.flavourhub"
-    },
+      "package": "com.flavourhub",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -47,9 +46,6 @@
           }
         }
       ],
-
-  "plugins": [
-      "expo-router",
       [
         "expo-camera",
         {
@@ -65,7 +61,7 @@
         }
       ]
     ],
-      "experiments": {
+    "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
