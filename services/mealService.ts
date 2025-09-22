@@ -243,7 +243,7 @@ export const toggleMealFavorite = async (mealId: string) => {
     console.log("Current favorite status:", currentFavorite);
     console.log("Setting favorite to:", newFavoriteStatus);
 
-    await updateDoc(mealDocRef, { favorite: newFavoriteStatus });
+    \  await updateDoc(mealDocRef, { favorite: newFavoriteStatus });
 
     console.log("Successfully updated favorite status");
     return newFavoriteStatus;
