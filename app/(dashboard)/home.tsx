@@ -102,6 +102,14 @@ export default function HomeScreen() {
     }
   };
 
+  const handleImageCaptured = (imageUri: string) => {
+    // Navigate to meal creation screen with the captured image
+    router.push({
+      pathname: "/(dashboard)/meals/new",
+      params: { imageUri },
+    });
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
     loadData();
@@ -264,7 +272,7 @@ export default function HomeScreen() {
               justifyContent: "center",
               alignItems: "center",
             }}
-            onPress={() => router.push("/(dashboard)/notifications")}
+            onPress={() => router.push("/(dashboard)/notification")}
           >
             <MaterialIcons name="notifications" size={24} color={colors.surface} />
           </TouchableOpacity>
@@ -593,11 +601,4 @@ export default function HomeScreen() {
       </View>
     </ScrollView>
   );
-
-  const handleImageCaptured = (imageUri: string) => {
-    router.push({
-      pathname: "/(dashboard)/meals/new",
-      params: { imageUri },
-    } as any);
-  };
 }

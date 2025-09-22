@@ -95,7 +95,7 @@ const DashboardLayout = () => {
 
         {/* Hide these extra screens from navigation */}
         <Tabs.Screen name="settings" options={{ href: null }} />
-        <Tabs.Screen name="notifications" options={{ href: null }} />
+        <Tabs.Screen name="notification" options={{ href: null }} />
         <Tabs.Screen name="plan" options={{ href: null }} />
         <Tabs.Screen name="qr-generator" options={{ href: null }} />
       </Tabs>

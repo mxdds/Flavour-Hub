@@ -30,7 +30,7 @@ const Register = () => {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions?.Images || ['Images'],
       quality: 1,
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
